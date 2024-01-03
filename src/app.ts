@@ -4,6 +4,7 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import userRoutes from "./modules/user/routes";
 import loginRoutes from "./modules/login/routes";
+import { handleErrors } from "./middlewares/ErrorHandler";
 export interface CustomError extends Error {
   status?: number;
 }
@@ -22,5 +23,7 @@ app.use("*", (req: Request, res: Response) => {
     message: "Invalid route",
   });
 });
+
+app.use(handleErrors);
 
 export default app;
