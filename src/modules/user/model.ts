@@ -5,19 +5,19 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: "varchar" }) // Specify the type for firstName
+  @Column({ type: "varchar" })
   firstName: string;
 
-  @Column({ type: "varchar" }) // Specify the type for lastName
+  @Column({ type: "varchar" })
   lastName: string;
 
-  @Column({ type: "varchar" }) // Specify the type for email
+  @Column({ type: "varchar" })
   email: string;
 
-  @Column({ type: "varchar" }) // Specify the type for password
+  @Column({ type: "varchar" })
   password: string;
 
-  @Column({ type: "boolean" }) // Specify the type for isActive
+  @Column({ type: "boolean" })
   isActive: boolean;
 
   constructor(

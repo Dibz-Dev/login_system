@@ -29,7 +29,7 @@ export const sendResponse = <T>(
     paginationInfo,
   });
 
-export const sendError = <T>(
+export const Error = <T>(
   res: Response,
   message: string,
   statusCode = 500,

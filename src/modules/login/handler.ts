@@ -1,11 +1,11 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { AppDataSource } from "../../database/data_source";
 import { User } from "../user/model";
 import { comparePasswords } from "../user/security/hashPassword";
-import { sendError, sendResponse } from "../../utils/Response";
+import { Error, sendResponse } from "../../utils/Response";
 
 export const loginHandler = {
-  loginUser: async (req: Request, res: Response) => {
+  loginUser: async (req: Request, res: Response, next: NextFunction) => {
     const { email, password } = req.body;
 
     const userRepo = AppDataSource.getRepository(User);
@@ -15,16 +15,16 @@ export const loginHandler = {
     });
 
     if (!user) {
-      return sendError(res, "Failed to find a user with that email", 500, null);
+      return Error(res, "Failed to find a user with that email", 400, "");
     }
     if (user && user.isActive) {
-      return sendError(res, "User already logged in", 400, null);
+      return Error(res, "User is already logged in", 400, "");
     }
 
     const isPasswordCorrect = await comparePasswords(password, user.password);
 
     if (!isPasswordCorrect) {
-      return sendError(res, "Password and or email is incorrect", 400, null);
+      return Error(res, "Password and or email is incorrect", 400, "");
     } else {
       user.isActive = true;
       await userRepo.save(user);

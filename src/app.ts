@@ -4,11 +4,8 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import userRoutes from "./modules/user/routes";
 import loginRoutes from "./modules/login/routes";
-interface CustomError {
+export interface CustomError extends Error {
   status?: number;
-  name?: string;
-  message?: string;
-  stack?: string;
 }
 
 const app = express();
@@ -24,10 +21,6 @@ app.use("*", (req: Request, res: Response) => {
     success: false,
     message: "Invalid route",
   });
-});
-
-app.use((err: CustomError, req: Request, res: Response, next: NextFunction) => {
-  res.status(err.status || 500).json({ error: err.message });
 });
 
 export default app;
