@@ -1,8 +1,9 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { User } from "./model";
 import { AppDataSource } from "../../database/data_source";
-import { sendResponse } from "../../utils/Response";
-import { hashPassword } from "./security/hashPassword";
+import { sendError, sendResponse } from "../../utils/Response";
+import { comparePasswords, hashPassword } from "./security/hashPassword";
+import { generateToken } from "./security/token";
 
 interface UserBody {
   firstName: string;
@@ -11,23 +12,59 @@ interface UserBody {
   password: string;
 }
 
-export const userHandler = {
-  getUsers: async (req: Request, res: Response) => {
-    const users = await AppDataSource.getRepository(User).find();
-    return res.status(200).json({
-      success: true,
-      message: "Fetched data successfully",
-      data: users,
+export const authHandler = {
+  // getUsers: async (req: Request, res: Response) => {
+  //   const users = await AppDataSource.getRepository(User).find();
+  //   return res.status(200).json({
+  //     success: true,
+  //     message: "Fetched data successfully",
+  //     data: users,
+  //   });
+  // },
+  // getUserById: async (req: Request, res: Response) => {
+  //   const id = req.params;
+  //   const users = await AppDataSource.getRepository(User).findOneByOrFail(id);
+  //   return res.status(200).json({
+  //     success: true,
+  //     message: `Fetched user with Id ${id.id} successfully`,
+  //     data: users,
+  //   });
+  // },
+
+  loginUser: async (req: Request, res: Response, next: NextFunction) => {
+    const { email, password } = req.body;
+
+    const userRepo = AppDataSource.getRepository(User);
+
+    const user = await userRepo.findOneBy({
+      email: email,
     });
-  },
-  getUserById: async (req: Request, res: Response) => {
-    const id = req.params;
-    const users = await AppDataSource.getRepository(User).findOneByOrFail(id);
-    return res.status(200).json({
-      success: true,
-      message: `Fetched user with Id ${id.id} successfully`,
-      data: users,
-    });
+
+    if (!user) {
+      return sendError(res, "Failed to find a user with that email", 400, null);
+    }
+    if (user && user.isActive) {
+      return sendError(res, "User is already logged in", 400, null);
+    }
+
+    const isPasswordCorrect = await comparePasswords(password, user.password);
+
+    if (!isPasswordCorrect) {
+      return sendError(res, "Password and or email is incorrect", 400, null);
+    }
+    const options = {
+      maxAge: 20 * 60 * 1000,
+      httpOnly: true,
+      secure: true,
+      sameSite: undefined,
+    };
+    const token = generateToken(user.id);
+    if (token) {
+      res.cookie("SessionID", token, options);
+      user.isActive = true;
+      await userRepo.save(user);
+      return sendResponse(res, "Successfully logged in", 200);
+    }
   },
 
   deleteUser: async (req: Request, res: Response) => {
@@ -44,9 +81,9 @@ export const userHandler = {
     });
   },
 
-  createUser: async (req: Request, res: Response): Promise<Response> => {
-    const { password, firstName, lastName, email } = req.body;
-    const hashedPassword = await hashPassword(password);
+  registerUser: async (req: Request, res: Response): Promise<Response> => {
+    const userBody = req.body;
+    const hashedPassword = await hashPassword(userBody.password);
     const repo = AppDataSource.getRepository(User);
 
     if (!hashedPassword) {
@@ -54,15 +91,22 @@ export const userHandler = {
     }
     const user: UserBody = {
       password: hashedPassword,
-      firstName: firstName,
-      lastName: lastName,
-      email: email,
+      firstName: userBody.firstName,
+      lastName: userBody.lastName,
+      email: userBody.email,
     };
 
     const newUser = repo.create(user);
 
     await repo.save(newUser);
+    const { password, ...restData } = newUser;
 
-    return sendResponse(res, "Successfully created a new user", 201);
+    return sendResponse(
+      res,
+      "Successfully created a new user",
+      restData,
+      null,
+      201
+    );
   },
 };

@@ -1,12 +1,10 @@
 import express from "express";
 
-import { userHandler } from "./handler";
+import { authHandler } from "./handler";
 
 const router = express.Router();
 
-router.get("/", userHandler.getUsers);
-router.get("/:id", userHandler.getUserById);
-router.delete("/:id", userHandler.deleteUser);
-router.post("/", userHandler.createUser);
+router.post("/register", authHandler.registerUser);
+router.post("/login", authHandler.loginUser);
 
 export default router;
