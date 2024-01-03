@@ -32,7 +32,7 @@ export const userHandler = {
 
   deleteUser: async (req: Request, res: Response) => {
     const id = req.params;
-    const users = await AppDataSource.getRepository(User);
+    const users = AppDataSource.getRepository(User);
 
     const user = await AppDataSource.getRepository(User).findOneByOrFail(id);
 

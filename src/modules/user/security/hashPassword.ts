@@ -13,15 +13,8 @@ export const hashPassword = async (password: string): Promise<string> => {
   }
 };
 
-export const comparePasswords = (password: string, hash: string) => {
-  return bcrypt
-    .compare(password, hash)
-    .then((res) => {
-      console.log(res);
-      return true;
-    })
-    .catch((err) => {
-      console.error(err.message);
-      return false;
-    });
+export const comparePasswords = async (password: string, hash: string) => {
+  const isPasswordMatched = await bcrypt.compare(password, hash);
+  console.log("Hash:", hash);
+  return isPasswordMatched;
 };
