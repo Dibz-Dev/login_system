@@ -11,6 +11,9 @@ export class User {
   @Column({ type: "varchar" })
   lastName: string;
 
+  @Column({ type: "varchar", default: "0rx1" })
+  role: string;
+
   @Column({ type: "varchar" })
   email: string;
 
@@ -28,6 +31,7 @@ export class User {
   ) {
     this.firstName = firstName;
     this.lastName = lastName;
+    this.role = "0rx1";
     this.email = email;
     this.password = password;
   }

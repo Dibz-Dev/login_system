@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from "express";
-import { User } from "./model";
-import { AppDataSource } from "../../database/data_source";
-import { sendError, sendResponse } from "../../utils/Response";
-import { comparePasswords, hashPassword } from "./security/hashPassword";
-import { generateToken } from "./security/token";
+import { User } from "../model";
+import { AppDataSource } from "../../../database/data_source";
+import { sendError, sendResponse } from "../../../utils/Response";
+import { comparePasswords, hashPassword } from "../security/hashPassword";
+import { generateToken } from "../security/token";
 
 interface UserBody {
   firstName: string;
@@ -13,24 +13,6 @@ interface UserBody {
 }
 
 export const authHandler = {
-  // getUsers: async (req: Request, res: Response) => {
-  //   const users = await AppDataSource.getRepository(User).find();
-  //   return res.status(200).json({
-  //     success: true,
-  //     message: "Fetched data successfully",
-  //     data: users,
-  //   });
-  // },
-  // getUserById: async (req: Request, res: Response) => {
-  //   const id = req.params;
-  //   const users = await AppDataSource.getRepository(User).findOneByOrFail(id);
-  //   return res.status(200).json({
-  //     success: true,
-  //     message: `Fetched user with Id ${id.id} successfully`,
-  //     data: users,
-  //   });
-  // },
-
   loginUser: async (req: Request, res: Response, next: NextFunction) => {
     const { email, password } = req.body;
 
@@ -60,7 +42,7 @@ export const authHandler = {
     };
     const token = generateToken(user.id);
     if (token) {
-      res.cookie("SessionID", token, options);
+      res.cookie("SessionID", token);
       user.isActive = true;
       await userRepo.save(user);
       return sendResponse(res, "Successfully logged in", 200);
