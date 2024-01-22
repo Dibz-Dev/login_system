@@ -8,10 +8,10 @@
     "build": "tsc",
     "dev": "nodemon --watch src --exec ts-node src/index.ts",
     "typeorm": "typeorm-ts-node-commonjs -d src/database/data_source.ts",
-    "migration:show": "npx typeorm migration:show",
+    "migration:show": "typeorm-ts-node-commonjs migration:show --dataSource src/database/data_source",
     "migration:create": "node src/scripts/migration-create.js",
-    "migration:run": "npx typeorm migration:run",
-    "migration:revert": "npx typeorm migration:revert"
+    "migration:run": "typeorm-ts-node-commonjs migration:run --dataSource src/database/data_source",
+    "migration:revert": "typeorm-ts-node-commonjs migration:revert --dataSource src/database/data_source"
   },
   "repository": {
     "type": "git",
@@ -25,6 +25,7 @@
   "homepage": "https://github.com/Dibz-Dev/user_login#readme",
   "dependencies": {
     "@types/bcrypt": "^5.0.2",
+    "axios": "^1.6.5",
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",

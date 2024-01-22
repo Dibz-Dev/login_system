@@ -11,7 +11,11 @@ export class User {
   @Column({ type: "varchar" })
   lastName: string;
 
-  @Column({ type: "varchar", default: "0rx1" })
+  @Column({
+    type: "varchar",
+    nullable: false,
+    default: "0rx1",
+  })
   role: string;
 
   @Column({ type: "varchar" })
